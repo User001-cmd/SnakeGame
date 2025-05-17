@@ -1,0 +1,121 @@
+import pygame
+import sys
+import os
+import time
+import random
+
+pygame.init()
+
+screen = pygame.display.set_mode((300,300))
+global posBeforeX
+global posBeforeY
+clock = pygame.time.Clock()
+screen.fill("Blue")
+X = 50 
+Y = 50
+X2 = 200
+Y2 = 300
+X3 = X-10
+Y3 = Y-10
+A_X = random.randrange(0,255)
+A_Y = random.randrange(0,255)
+Rect = [(50,50)]
+AppleSpawned = False
+RectBody = pygame.Rect(X,Y,50,50)
+Rect2 = pygame.Rect(50,60,50,20)
+Say_Once = True
+font = pygame.font.Font('freesansbold.ttf', 32)
+green = (0,255,0)
+blue = (0,0,255)
+text = font.render('GameOver', True, green, blue)
+textRect = text.get_rect()
+textRect.center = (125,125)
+i = 0
+AllRects = [Rect]
+Direction = "UP"
+def getItemAtIndex(Item,Index):
+    return Item[Index]
+b = 0
+Score = 0
+ScoreTracker = 1
+Head = pygame.Rect(getItemAtIndex(Rect[0],0),getItemAtIndex(Rect[0],1),25,25)
+Apple = pygame.Rect(A_X,A_Y,10,10)
+def AddRectToSnake(Snake):
+    tail = Snake[-1]
+    Snake.append(Snake[-1])
+Snake_Body = []
+while True:
+    Head = pygame.Rect(getItemAtIndex(Rect[0], 0), getItemAtIndex(Rect[0], 1), 25, 25)
+    Apple = pygame.Rect(A_X, A_Y, 25, 25)
+    CollisionApple = Apple.colliderect(Head)
+    if CollisionApple:
+        print("Collision")
+        Score += 1
+        AppleSpawned = False
+    for pos in Rect:
+        Snake_Body.append(pos[0])
+        Snake_Body.append(pos[1])
+    Say_Once = True
+    Say_Twice = True
+    for pos in Rect:
+        if Say_Once == False:
+            if Head.x == pygame.Rect(pos[0],pos[1],25,25).x or Head.y == pygame.Rect(pos[0],pos[1],25,25):
+                sys.exit()
+            Say_Once = False
+    
+    if Score == ScoreTracker:
+        ScoreTracker +=1
+        AddRectToSnake(Rect)
+    Say_Once = True
+    screen.fill("Blue")
+    Number_1_1,Number_1_2 = X,Y
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            raise SystemExit
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                Direction = "UP"
+            if event.key == pygame.K_DOWN:
+                Direction = "DOWN" 
+            if event.key == pygame.K_RIGHT:
+                Direction = "RIGHT"
+            if event.key == pygame.K_LEFT:
+                Direction = "LEFT"
+    for i in range(len(Rect)-1,0,-1):
+        if b % 5 == 0: 
+            Rect[i] = Rect[i-1]
+    if b % 5 == 0:
+        if Direction == "LEFT":
+            Rect[0] = (getItemAtIndex(Rect[i],0)-10,getItemAtIndex(Rect[i],1))
+        if Direction == "RIGHT":
+            Rect[0] = (getItemAtIndex(Rect[i],0)+10,getItemAtIndex(Rect[i],1))                            
+        if Direction == "UP":
+            Rect[0] = (getItemAtIndex(Rect[i],0),getItemAtIndex(Rect[i],1)-10)
+        if Direction == "DOWN":
+            Rect[0] = (getItemAtIndex(Rect[i],0),getItemAtIndex(Rect[i],1)+10)
+    Head = pygame.Rect(getItemAtIndex(Rect[0],0),getItemAtIndex(Rect[0],1),25,25)
+    if getItemAtIndex(Rect[0],0) > 250 or getItemAtIndex(Rect[0],1)  < 0:
+        screen.blit(text,textRect)
+        pygame.display.flip()
+        print(Score)
+        time.sleep(3)
+        sys.exit()
+    elif getItemAtIndex(Rect[0],1) > 250 or getItemAtIndex(Rect[0],0)  < 0:
+        screen.blit(text,textRect)
+        pygame.display.flip()
+        print(Score)
+        time.sleep(3)
+        sys.exit()
+    if AppleSpawned == False:
+        AppleSpawned = True
+        A_X = random.randint(0,255)
+        A_Y = random.randint(0,255)
+        AppleSpawned = True
+    for pos in Rect:
+        pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(pos[0], pos[1], 25, 25))
+
+    pygame.draw.rect(screen,(255,0,0),(A_X,A_Y,25,25))
+    pygame.display.flip()
+    clock.tick(30)
+    b += 1 
